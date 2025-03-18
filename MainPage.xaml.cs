@@ -16,23 +16,43 @@ public partial class MainPage : ContentPage
         _lstExpHistory.ItemsSource = _expList;
     }
 
-    private void OnCalculate(object sender, EventArgs e)
+    private async void OnCalculate(object sender, EventArgs e)
     {
-        //get the input to the arithmetic operation
-        double leftOperand = double.Parse(_txtLeftOp.Text);
-        double rightOperand = double.Parse(_txtRightOp.Text);
-        char operation = ((string)_pckOperand.SelectedItem)[0]; //cast to string is possible because SelectedItem is an object
+        try
+        {
+            //get the input to the arithmetic operation
+            double leftOperand = double.Parse(_txtLeftOp.Text);
+            double rightOperand = double.Parse(_txtRightOp.Text);
+            char operation =
+                ((string)_pckOperand.SelectedItem)[0]; //cast to string is possible because SelectedItem is an object
 
-        //perform the arithmetic operation and obtain the result
-        double result = PerformArithmeticOperation(operation, leftOperand, rightOperand);
-        
-        //Display the arithmetic calculation to the user. Show the work
-        string expression = $"{leftOperand} {operation} {rightOperand} = {result}";
-        
-        //remember the expression
-        _expList.Add(expression);
-        
-        _txtMathExp.Text = expression;
+            //perform the arithmetic operation and obtain the result
+            double result = PerformArithmeticOperation(operation, leftOperand, rightOperand);
+
+            //Display the arithmetic calculation to the user. Show the work
+            string expression = $"{leftOperand} {operation} {rightOperand} = {result}";
+
+            //remember the expression
+            _expList.Add(expression);
+
+            _txtMathExp.Text = expression;
+        }
+        catch (ArgumentNullException ex)
+        {
+            //The user did not provide any input
+            await DisplayAlert("Error, ", "Please provide the required input.", "OK");
+            //await DisplayAlert("More", "More info on the error", "Ok");
+        }
+        catch (FormatException ex)
+        {
+            //the user has provided input but it is incorrect
+            await DisplayAlert("Error, ", "Please provide the required input.", "OK");
+        }
+        catch (DivideByZeroException ex)
+        {
+            //the user has divided by 0
+            await DisplayAlert("Error, ", "Please provide a non-zero input.", "OK");
+        }
     }
 
     private double PerformArithmeticOperation(char operation, double leftOperand, double rightOperand)
